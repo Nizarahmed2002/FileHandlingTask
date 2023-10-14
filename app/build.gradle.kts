@@ -55,7 +55,10 @@ dependencies {
     //coil image setter
     implementation ("io.coil-kt:coil:2.4.0")
     //gson for json
-    implementation ("com.google.code.gson:gson:2.8.8") // You might need to adjust the version.
+    implementation ("com.google.code.gson:gson:2.8.7") // You might need to adjust the version.
+    //picasso library
+    implementation ("com.squareup.picasso:picasso:2.8")
+
 
 
 

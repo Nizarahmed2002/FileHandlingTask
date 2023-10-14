@@ -13,6 +13,12 @@ import androidx.annotation.RequiresApi
 import coil.load
 import com.example.filehandlingtask.databinding.ActivityMainBinding
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -39,10 +45,17 @@ class MainActivity : AppCompatActivity() {
                     result?.let { path ->
                         imageView.load(path)
                         imgPath = path
+                        Log.i("path", "$imgPath ")
 
 
                     }
                 }
+
+            RecycleButton.setOnClickListener {
+
+                ReadFile()
+
+            }
 
             imgSetter.setOnClickListener{
 
@@ -55,10 +68,24 @@ class MainActivity : AppCompatActivity() {
 
             }
             submit.setOnClickListener{
+                Log.i("path", "$imgPath ")
 
-                fileCreation(name.text.toString())
 
-                userData(name.text.toString(),mail.text.toString(),phone.text.toString().toInt(),imgPath)
+
+
+
+                runBlocking {
+                        fileCreation(name.text.toString())
+                    }
+                GlobalScope.launch(Dispatchers.IO){
+                   async {   writeFile(userData(name.text.toString(),mail.text.toString(),phone.text.toString().toInt().toLong(),imgPath.toString()))}.await()
+                  async {   Log.i("read", "readFile: ${File(fileDir, "profile.json").readText()}")}.await()
+
+                }
+
+
+
+
 
 
 
@@ -74,21 +101,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun ReadFile() {
+
+    }
+
     private fun fileCreation(fileName:String) {
         fileDir  = Environment.getExternalStoragePublicDirectory("${Environment.DIRECTORY_DOCUMENTS}/File/$fileName")
         fileDir.mkdirs()
 
     }
-    private fun writeFile(data :UserData) {
+    private  fun writeFile(data :userData) {
 
 
         try {
 
 
-            val filename = File(fileDir, "profile.txt")
+            val filename = File(fileDir, "profile.json")
             val fileContents = data
             FileOutputStream(filename).use { OutputStream ->
-                OutputStream.write(Gson().toJson(data).toByteArray())
+                OutputStream.write(Gson().toJson(fileContents).toByteArray())
                 Log.i("status", "onCreate: ")
                 OutputStream.close()
 
